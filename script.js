@@ -1,3 +1,49 @@
+/* 
+----- DOM -----
+*/
+// buttons
+const buttons = document.querySelectorAll('.btn');
+
+// Screen
+const inputScreen = document.querySelector('.input');
+const operationScreen = document.querySelector('.operation');
+
+
+
+/*
+----- Variables -----
+*/
+// Is operande already entered
+let isOperande = false;
+
+// Do numbers already are decimals
+let isDecA = false;
+let isDecB = false;
+
+// Is number already entered
+let isNbA = false;
+let isNbB = false;
+
+// Numbers
+const nbA = document.querySelector('.nbA');
+const nbB = document.querySelector('.nbB');
+let total = 0;
+
+let expression = {
+    'numberA' : '',
+    'isDecimalA' : false,
+    'numberB': '',
+    'isDecimalB': false,
+    'operande' : '',
+}
+
+// Operande
+let operande = '';
+
+
+/*
+----- Functions -----
+*/
 // Basic operations
 
 const add      = (a, b) => a + b;
@@ -27,12 +73,37 @@ const operate = (a, b, operator) => {
     return res;
 }
 
-// buttons
-const buttons = document.querySelectorAll('.btn');
-console.log(buttons);
 
+// const updateValueA = (val, nb, isDec) => {
+//     nb.value += val;
+//     if(val === ".") val.classList.add;
+// }
+
+const updateExpression = (val, exp) => {
+    if(exp.operande === '') { 
+        //If no operande, we're working on number A
+        if((val === "." && !exp.isDecimalA) || !isNaN(Number(val)) ) {
+            exp.numberA += val;
+            exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
+        }
+        console.log(exp); 
+    }
+}
+
+/*
+----- Events -----
+*/
 buttons.forEach((el) => {
-    el.addEventListener('click', () => console.log(el.getAttribute('value')));
+    el.addEventListener('click', () => {
+        updateExpression(el.getAttribute('value'), expression);
+        inputScreen.innerText = expression.numberA;
+    });
 })
 
-// buttons.addEventListener('click', (e) => console.log(e.value))
+
+
+
+/*
+----- Misc -----
+*/
+console.log(buttons);

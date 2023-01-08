@@ -8,8 +8,14 @@
     <title>Calculator</title>
 </head>
 <body>
-    <h1>Calculator project</h1>
+    <h1>Calculator project</h1> 
+    <!-- HIDDEN VALUES -->
+    <input type="hidden" value="" class="nbB">
+    <input type="hidden" value="" class="nbA">
+    <!-- HIDDEN VALUES -->
+
     <div class="container">
+
         <div class="screen">
             <div class="operation"></div>
             <div class="input"></div>
@@ -33,21 +39,21 @@
                 <button class="btn" value="4">4</button>
                 <button class="btn" value="5">5</button>
                 <button class="btn" value="6">6</button>
-                <button class="btn" value="*">X</button>
+                <button class="btn op" value="*">X</button>
             </div>
 
             <div class="row">
                 <button class="btn" value="1">1</button>
                 <button class="btn" value="2">2</button>
                 <button class="btn" value="3">3</button>
-                <button class="btn" value="-">-</button>
+                <button class="btn op" value="-">-</button>
             </div>
 
             <div class="row">
-                <button class="btn" value=".">.</button>
+                <button class="btn dec" value=".">.</button>
                 <button class="btn" value="0">0</button>
-                <button class="btn" value="=">=</button>
-                <button class="btn" value="+">+</button>
+                <button class="btn eq" value="=">=</button>
+                <button class="btn op" value="+">+</button>
             </div>
 
         </div>
