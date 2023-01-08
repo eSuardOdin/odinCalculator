@@ -35,6 +35,7 @@ let expression = {
     'numberB': '',
     'isDecimalB': false,
     'operande' : '',
+    'total': ''
 }
 
 // Operande
@@ -74,20 +75,30 @@ const operate = (a, b, operator) => {
 }
 
 
-// const updateValueA = (val, nb, isDec) => {
-//     nb.value += val;
-//     if(val === ".") val.classList.add;
-// }
 
 const updateExpression = (val, exp) => {
     if(exp.operande === '') { 
-        //If no operande, we're working on number A
+        //If no operande, and val is a number we're working on number A
         if((val === "." && !exp.isDecimalA) || !isNaN(Number(val)) ) {
             exp.numberA += val;
             exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
+        } else if ( 
+            (val === '+' ||
+            val === '-' ||
+            val === '/' ||
+            val === '*')
+            && exp.numberB === ''
+        ) {
+            exp.operande = val;
+        } 
+        
+    } else if(exp.operande !== '') {
+        if((val === "." && !exp.isDecimalB) || !isNaN(Number(val)) ) {
+            exp.numberB += val;
+            exp.isDecimalB = (val === ".") ? true : exp.isDecimalB;
         }
-        console.log(exp); 
     }
+    console.log(exp); 
 }
 
 /*
@@ -96,7 +107,7 @@ const updateExpression = (val, exp) => {
 buttons.forEach((el) => {
     el.addEventListener('click', () => {
         updateExpression(el.getAttribute('value'), expression);
-        inputScreen.innerText = expression.numberA;
+        inputScreen.innerText = expression.numberA + expression.operande + expression.numberB;
     });
 })
 
@@ -106,4 +117,4 @@ buttons.forEach((el) => {
 /*
 ----- Misc -----
 */
-console.log(buttons);
+// console.log(buttons);
