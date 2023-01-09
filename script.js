@@ -13,8 +13,6 @@ const operationScreen = document.querySelector('.operation');
 /*
 ----- Variables -----
 */
-// Is operande already entered
-let isOperande = false;
 
 // Do numbers already are decimals
 let isDecA = false;
@@ -34,12 +32,10 @@ let expression = {
     'isDecimalA' : false,
     'numberB': '',
     'isDecimalB': false,
-    'operande' : '',
+    'operator' : '',
     'total': ''
 }
 
-// Operande
-let operande = '';
 
 
 /*
@@ -57,16 +53,16 @@ const operate = (a, b, operator) => {
     let res;
     switch (operator) {
         case "+":
-            res = add(a, b);
+            res = add(Number(a), Number(b));
             break;
         case "-":
-            res = subtract(a, b);
+            res = subtract(Number(a), Number(b));
            break;
-        case "*":
-            res = multiply(a, b);
+        case "x":
+            res = multiply(Number(a), Number(b));
             break;
         case "/":
-            res = divide(a, b);
+            res = divide(Number(a), Number(b));
             break;
         default:
             break;
@@ -77,26 +73,29 @@ const operate = (a, b, operator) => {
 
 
 const updateExpression = (val, exp) => {
-    if(exp.operande === '') { 
-        //If no operande, and val is a number we're working on number A
+    if(exp.operator === '') { 
+        //If no operator, and val is a number we're working on number A
         if((val === "." && !exp.isDecimalA) || !isNaN(Number(val)) ) {
             exp.numberA += val;
             exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
-        } else if ( 
+        } else if ( // If operator and number B is empty, we're just updating exp.operator
             (val === '+' ||
             val === '-' ||
             val === '/' ||
-            val === '*')
+            val === 'x')
             && exp.numberB === ''
         ) {
-            exp.operande = val;
+            exp.operator = val;
         } 
         
-    } else if(exp.operande !== '') {
+    } else if(exp.operator !== '') { // Working on number B
         if((val === "." && !exp.isDecimalB) || !isNaN(Number(val)) ) {
             exp.numberB += val;
             exp.isDecimalB = (val === ".") ? true : exp.isDecimalB;
         }
+    }
+    if(val === "=") { // Triggering operation
+        exp.total = operate(exp.numberA, exp.numberB, exp.operator);
     }
     console.log(exp); 
 }
@@ -107,7 +106,8 @@ const updateExpression = (val, exp) => {
 buttons.forEach((el) => {
     el.addEventListener('click', () => {
         updateExpression(el.getAttribute('value'), expression);
-        inputScreen.innerText = expression.numberA + expression.operande + expression.numberB;
+        inputScreen.innerText = expression.numberA + expression.operator + expression.numberB;
+        operationScreen.innerText = expression.total;
     });
 })
 
