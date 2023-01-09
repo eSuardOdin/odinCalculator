@@ -23,7 +23,7 @@ let expression = {
     'operator' : '',
     'total': 0,
     'lastWrite': '',    // In order to delete a char
-    'complete': true,
+    'complete': false,
 }
 
 
@@ -71,7 +71,7 @@ const clearExpression = (exp) => {
     exp.isDecimalB = false;
     exp.operator = '';
     exp.lastWrite = '';
-    exp.total = 0;
+    exp.total = '';
 
     resultScreen.innerText = '0';
     operationScreen.innerText = '0';
@@ -112,6 +112,8 @@ const updateExpression = (val, exp) => {
             if(val === "." && exp.numberA === '') exp.numberA = "0.";
             // Can't add more than one zéro to begin the expression
             else if (val === '0' && exp.numberA === '0') return;
+            // If already 12 char long
+            else if (exp.numberA.length === 12) return;
             else if (exp.numberA === '0') exp.numberA = val;
             else exp.numberA += val;
             exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
@@ -131,15 +133,29 @@ const updateExpression = (val, exp) => {
             exp.lastWrite = "operator"
         } 
         
+        
     } 
-    
+    else if ( // If operator and number B is empty + total != 0
+            (val === '+' ||
+            val === '-' ||
+            val === '/' ||
+            val === 'x')
+            && exp.numberB === ''
+            && exp.total !== ''
+        ) {
+            exp.numberA = exp.total;
+            exp.operator = val;
+            exp.lastWrite = "operator"
+        } 
     else if(exp.operator !== '') { // Working on number B
         // If value is a number or dot
         if((val === "." && !exp.isDecimalB) || !isNaN(Number(val)) ) {
             // If first value is a dot
             if(val === "." && exp.numberB === '') exp.numberB = "0.";
-            // Can't add more than one zéro to begin the expression
+            // Can't add more than one zero to begin the expression
             else if (val === '0' && exp.numberB === '0') return;
+            // If already 12 char long
+            else if (exp.numberB.length === 12) return;
             else if (exp.numberB === '0') exp.numberB = val;
             else exp.numberB += val;
             exp.isDecimalB = (val === ".") ? true : exp.isDecimalB;
@@ -148,8 +164,9 @@ const updateExpression = (val, exp) => {
             exp.lastWrite = "numberB"
         } 
     }
-    if(val === "=") { // Triggering operation
+    if(val === "=" && exp.numberA !== '' && exp.numberB !== '') { // Triggering operation
         exp.total = operate(exp.numberA, exp.numberB, exp.operator);
+
     }
     console.log(exp); 
 }
@@ -160,7 +177,7 @@ const updateExpression = (val, exp) => {
 buttons.forEach((el) => {
     el.addEventListener('click', () => {
         updateExpression(el.getAttribute('value'), expression);
-        resultScreen.innerText = String(expression.total); 
+        resultScreen.innerText = expression.total; 
         operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
     });
 })
@@ -168,7 +185,7 @@ buttons.forEach((el) => {
 clearBtn.addEventListener('click', () => clearExpression(expression));
 deleteBtn.addEventListener('click', () => {
     deleteChar(expression);
-    resultScreen.innerText = String(expression.total); 
+    resultScreen.innerText = expression.total; 
     operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
 })
 
