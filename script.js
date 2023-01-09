@@ -5,7 +5,7 @@
 const buttons = document.querySelectorAll('.btn');
 
 // Screen
-const inputScreen = document.querySelector('.input');
+const resultScreen = document.querySelector('.result');
 const operationScreen = document.querySelector('.operation');
 
 
@@ -14,18 +14,18 @@ const operationScreen = document.querySelector('.operation');
 ----- Variables -----
 */
 
-// Do numbers already are decimals
-let isDecA = false;
-let isDecB = false;
+// // Do numbers already are decimals
+// let isDecA = false;
+// let isDecB = false;
 
-// Is number already entered
-let isNbA = false;
-let isNbB = false;
+// // Is number already entered
+// let isNbA = false;
+// let isNbB = false;
 
-// Numbers
-const nbA = document.querySelector('.nbA');
-const nbB = document.querySelector('.nbB');
-let total = 0;
+// // Numbers
+// const nbA = document.querySelector('.nbA');
+// const nbB = document.querySelector('.nbB');
+// let total = 0;
 
 let expression = {
     'numberA' : '',
@@ -33,7 +33,8 @@ let expression = {
     'numberB': '',
     'isDecimalB': false,
     'operator' : '',
-    'total': ''
+    'total': 0,
+    'lastWrite': ''    // In order to delete a char
 }
 
 
@@ -41,12 +42,16 @@ let expression = {
 /*
 ----- Functions -----
 */
+
+// Round
+const round = (nb, dec) => Math.round(nb * dec) / dec; 
+
 // Basic operations
 
-const add      = (a, b) => a + b;
-const subtract = (a, b) => a - b;
-const multiply = (a, b) => a * b;
-const divide   = (a, b) => a / b;
+const add      = (a, b) => round((a + b), 1000);
+const subtract = (a, b) => round((a - b), 1000);
+const multiply = (a, b) => round((a * b), 1000);
+const divide   = (a, b) => round((a / b), 1000);
 
 // Switch an expression to return computed
 const operate = (a, b, operator) => {
@@ -72,11 +77,19 @@ const operate = (a, b, operator) => {
 
 
 
+
 const updateExpression = (val, exp) => {
+    // Return if the input is an operator and no number A yet
+    if( isNaN(val) && exp.numberA === "" ) return;
+
     if(exp.operator === '') { 
         //If no operator, and val is a number we're working on number A
         if((val === "." && !exp.isDecimalA) || !isNaN(Number(val)) ) {
-            exp.numberA += val;
+            // If first value is a dot
+            if(val === "." && exp.numberA.length === 0)  {
+                exp.numberA += `0.`;
+            }
+            else exp.numberA += val;
             exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
         } else if ( // If operator and number B is empty, we're just updating exp.operator
             (val === '+' ||
@@ -106,8 +119,8 @@ const updateExpression = (val, exp) => {
 buttons.forEach((el) => {
     el.addEventListener('click', () => {
         updateExpression(el.getAttribute('value'), expression);
-        inputScreen.innerText = expression.numberA + expression.operator + expression.numberB;
-        operationScreen.innerText = expression.total;
+        resultScreen.innerText = String(expression.total); 
+        operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
     });
 })
 

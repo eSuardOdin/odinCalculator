@@ -28,14 +28,23 @@ body {
     height: 80px;
     width: 70%;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
     align-items: flex-end;
     border: solid black 1px;
 }
-.input{
+.result{
+    background-color: rgb(29, 109, 29);
+    font-size: 40px;
+    letter-spacing: 5px;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+.operation{
     background-color: rgb(29, 109, 29);
     font-size: 25px;
-    letter-spacing: 5px;
+    letter-spacing: 5px;  
+    word-wrap: break-word;
+    word-break: break-all;
 }
 
 .keyboard {
