@@ -3,6 +3,8 @@
 */
 // buttons
 const buttons = document.querySelectorAll('.btn');
+const deleteBtn = document.querySelector('.delete');
+const clearBtn = document.querySelector('.clear');
 
 // Screen
 const resultScreen = document.querySelector('.result');
@@ -13,20 +15,6 @@ const operationScreen = document.querySelector('.operation');
 /*
 ----- Variables -----
 */
-
-// // Do numbers already are decimals
-// let isDecA = false;
-// let isDecB = false;
-
-// // Is number already entered
-// let isNbA = false;
-// let isNbB = false;
-
-// // Numbers
-// const nbA = document.querySelector('.nbA');
-// const nbB = document.querySelector('.nbB');
-// let total = 0;
-
 let expression = {
     'numberA' : '',
     'isDecimalA' : false,
@@ -34,7 +22,8 @@ let expression = {
     'isDecimalB': false,
     'operator' : '',
     'total': 0,
-    'lastWrite': ''    // In order to delete a char
+    'lastWrite': '',    // In order to delete a char
+    'complete': true,
 }
 
 
@@ -47,7 +36,6 @@ let expression = {
 const round = (nb, dec) => Math.round(nb * dec) / dec; 
 
 // Basic operations
-
 const add      = (a, b) => round((a + b), 1000);
 const subtract = (a, b) => round((a - b), 1000);
 const multiply = (a, b) => round((a * b), 1000);
@@ -75,23 +63,64 @@ const operate = (a, b, operator) => {
     return res;
 }
 
+// Clear expression
+const clearExpression = (exp) => {
+    exp.numberA = '';
+    exp.numberB = '';
+    exp.isDecimalA = false;
+    exp.isDecimalB = false;
+    exp.operator = '';
+    exp.lastWrite = '';
+    exp.total = 0;
+
+    resultScreen.innerText = '0';
+    operationScreen.innerText = '0';
+}
+
+// Delete char
+const deleteChar = (exp) => {
+    switch (exp.lastWrite) {
+        case 'numberA':
+            exp.numberA = exp.numberA.slice(0, -1);
+            break;
+        case 'numberB':
+            exp.numberB = exp.numberB.slice(0, -1);
+            if(exp.numberB === '') exp.lastWrite = 'operator';
+            break;
+        case 'operator':
+            // Delete operator
+            exp.operator = '';
+            exp.lastWrite = 'numberA';
+            break;
+        default:
+            break;
+    }
+}
 
 
 
 const updateExpression = (val, exp) => {
     // Return if the input is an operator and no number A yet
-    if( isNaN(val) && exp.numberA === "" ) return;
+    if( val !== "." && isNaN(val) && exp.numberA === "" ) return;
 
+    //If no operator, and val is a number we're working on number A
     if(exp.operator === '') { 
-        //If no operator, and val is a number we're working on number A
+        
+        // If value is a number or dot
         if((val === "." && !exp.isDecimalA) || !isNaN(Number(val)) ) {
             // If first value is a dot
-            if(val === "." && exp.numberA.length === 0)  {
-                exp.numberA += `0.`;
-            }
+            if(val === "." && exp.numberA === '') exp.numberA = "0.";
+            // Can't add more than one zéro to begin the expression
+            else if (val === '0' && exp.numberA === '0') return;
+            else if (exp.numberA === '0') exp.numberA = val;
             else exp.numberA += val;
             exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
-        } else if ( // If operator and number B is empty, we're just updating exp.operator
+
+            // Last updated
+            exp.lastWrite = "numberA"
+        } 
+        
+        else if ( // If operator and number B is empty, we're just updating exp.operator
             (val === '+' ||
             val === '-' ||
             val === '/' ||
@@ -99,13 +128,25 @@ const updateExpression = (val, exp) => {
             && exp.numberB === ''
         ) {
             exp.operator = val;
+            exp.lastWrite = "operator"
         } 
         
-    } else if(exp.operator !== '') { // Working on number B
+    } 
+    
+    else if(exp.operator !== '') { // Working on number B
+        // If value is a number or dot
         if((val === "." && !exp.isDecimalB) || !isNaN(Number(val)) ) {
-            exp.numberB += val;
+            // If first value is a dot
+            if(val === "." && exp.numberB === '') exp.numberB = "0.";
+            // Can't add more than one zéro to begin the expression
+            else if (val === '0' && exp.numberB === '0') return;
+            else if (exp.numberB === '0') exp.numberB = val;
+            else exp.numberB += val;
             exp.isDecimalB = (val === ".") ? true : exp.isDecimalB;
-        }
+
+            // Last updated
+            exp.lastWrite = "numberB"
+        } 
     }
     if(val === "=") { // Triggering operation
         exp.total = operate(exp.numberA, exp.numberB, exp.operator);
@@ -124,7 +165,12 @@ buttons.forEach((el) => {
     });
 })
 
-
+clearBtn.addEventListener('click', () => clearExpression(expression));
+deleteBtn.addEventListener('click', () => {
+    deleteChar(expression);
+    resultScreen.innerText = String(expression.total); 
+    operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
+})
 
 
 /*
