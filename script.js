@@ -217,17 +217,17 @@ const computeSymbol = (data, expression) => {
  */
 const computeNumber = (data, expression) => {
     // If operator !empty, working on number B
-    if(expression.operator !== '') {
+    if(expression.operator !== '' && expression.numberB.length < 10) {
         expression.numberB += data;
         expression.lastWrite = 'numberB';
         return;
     }
     // If total not already empty, we erase it
-    if(expression.numberA === '' && expression.total !== '') {
+    if(expression.numberA === '' && expression.total !== '' ) {
         expression.lastWrite = 'numberA';
         expression.total = '';
     }
-    expression.numberA += data;
+    if (expression.numberA.length < 10) expression.numberA += data;
 }
 
 
@@ -268,7 +268,66 @@ deleteBtn.addEventListener('click', () => {
 })
 
 
-/*
------ Misc -----
-*/
-// console.log(buttons);
+
+
+document.addEventListener('keydown', (e) => {
+    console.log(e.code);
+    switch (e.code) {
+        case 'Numpad0':
+            evaluateData('0', expression);
+            break;
+        case 'Numpad1':
+            evaluateData('1', expression);
+            break;
+        case 'Numpad2':
+            evaluateData('2', expression);
+            break;
+        case 'Numpad3':
+            evaluateData('3', expression);
+            break;
+        case 'Numpad4':
+            evaluateData('4', expression);
+            break;
+        case 'Numpad5':
+            evaluateData('5', expression);
+            break;
+        case 'Numpad6':
+            evaluateData('6', expression);
+            break;
+        case 'Numpad7':
+            evaluateData('7', expression);
+            break;
+        case 'Numpad8':
+            evaluateData('8', expression);
+            break;
+        case 'Numpad9':
+            evaluateData('9', expression);
+            break;
+        case 'NumpadDivide':
+            evaluateData('/', expression);
+            break;
+        case 'NumpadMultiply':
+            evaluateData('x', expression);
+            break;
+        case 'NumpadAdd':
+            evaluateData('+', expression);
+            break;
+        case 'NumpadSubtract':
+            evaluateData('-', expression);
+            break;
+        case 'NumpadEnter':
+            evaluateData('=', expression);
+            break;
+        case 'NumpadDecimal':
+            evaluateData('.', expression);
+            break;
+        default:
+            break;
+    }
+
+
+    operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
+});
+
+
+// NEED TO FIX DELETE BUTTON THAT ERASE TOTAL
