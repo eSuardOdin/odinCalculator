@@ -84,18 +84,42 @@ const computeEqual = (data, expression) => {
     
 }
 
-const computeDecimal = (data, expression) => {
-
+const computeDecimal = (expression) => {
+    // If exp.operator is empty, we work on number A
+    if(expression.operator === '') {
+        if(expression.isDecimalA) {
+            console.log(expression);
+            return; // If already a decimal
+        }
+        expression.lastWrite = 'numberA';
+        expression.numberA += (expression.numberA === '') ? '0.' : '.';
+        expression.isDecimalA = true;
+        console.log(expression);
+        return;
+    }
+    
+    // If not, we work on number B
+    if(expression.isDecimalB) {
+        console.log(expression);
+        return; // If already a decimal
+    }
+    expression.lastWrite = 'numberB';
+    expression.numberB += (expression.numberB === '') ? '0.' : '.';
+    expression.isDecimalB = true;
+    console.log(expression);
+    return;
 }
 
 const computeOperator = (data, expression) => {
 
+
+    expression.lastWrite = 'operator';
 }
 
 
 const computeSymbol = (data, expression) => {
     if (data === '.') {
-        computeDecimal(data, expression);
+        computeDecimal(expression);
     }
     else if (
             data === '/' ||
@@ -116,25 +140,58 @@ const computeSymbol = (data, expression) => {
 
 
 const computeNumber = (data, expression) => {
-    // If operator empty, working on number B
-    if(expression.operator === '') {
+    console.log('computeNumber working on number : ');
+    // If operator !empty, working on number B
+    if(expression.operator !== '') {
+        console.log('B');
         expression.numberB += data;
+        expression.lastWrite = 'numberB';
+        console.log(expression);
         return;
     }
+    console.log('A');
     // If total not already empty, we erase it
     if(expression.numberA === '' && expression.total !== '') {
+        console.log('Total erased');
+        expression.lastWrite = 'numberA';
         expression.total = '';
     }
     expression.numberA += data;
+    console.log(expression);
 }
 
 
 
 // Evaluate if nb or symbol
 const evaluateData = (data, expression) => {
+    console.log('evaluateData, calling :');
     if(isNaN(Number(data))) {
+        console.log('computeSymbol')
         computeSymbol(data, expression);
     } else {
+        console.log('computeNumber')
         computeNumber(data, expression);
     }
 }
+
+/*
+evaluateData('8', 'a');
+evaluateData('/', 'a');
+*/
+
+
+let expression = {
+    'numberA' : '',
+    'isDecimalA' : false,
+    'numberB': '',
+    'isDecimalB': false,
+    'operator' : '',
+    'total': '',
+    'lastWrite': '',    // In order to delete a char
+    'complete': false,
+}
+
+
+// evaluateData('3', expression);
+
+computeDecimal(expression);
