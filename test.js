@@ -80,7 +80,8 @@
 
 
 const computeEqual = (data, expression) => {
-
+    // If exp.operator is empty, we work on number A
+    
 }
 
 const computeDecimal = (data, expression) => {
@@ -93,7 +94,20 @@ const computeOperator = (data, expression) => {
 
 
 const computeSymbol = (data, expression) => {
-    if (data === '.')
+    if (data === '.') {
+        computeDecimal(data, expression);
+    }
+    else if (
+            data === '/' ||
+            data === 'x' ||
+            data === '+' ||
+            data === '-'
+    ) {
+        computeOperator(data, expression);
+    }
+    else {
+        computeEqual(data, expression);
+    }
 }
 
 
