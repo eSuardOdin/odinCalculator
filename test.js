@@ -79,11 +79,105 @@
 
 
 
-const computeEqual = (data, expression) => {
-    // If exp.operator is empty, we work on number A
-    
+
+// ___________________ ANCIENT FUNC _______________________
+// Round
+const round = (nb, dec) => Math.round(nb * dec) / dec; 
+
+// Basic operations
+const add      = (a, b) => round((a + b), 1000);
+const subtract = (a, b) => round((a - b), 1000);
+const multiply = (a, b) => round((a * b), 1000);
+const divide   = (a, b) => round((a / b), 1000);
+
+// Switch an expression to return computed
+const operate = (exp) => {
+    let res;
+    switch (exp.operator) {
+        case "+":
+            res = add(Number(exp.numberA), Number(exp.numberB));
+            break;
+        case "-":
+            res = subtract(Number(exp.numberA), Number(exp.numberB));
+           break;
+        case "x":
+            res = multiply(Number(exp.numberA), Number(exp.numberB));
+            break;
+        case "/":
+            res = divide(Number(exp.numberA), Number(exp.numberB));
+            break;
+        default:
+            break;
+    }
+    return res;
 }
 
+// Clear expression
+const clearExpression = (exp) => {
+    exp.numberA = '';
+    exp.numberB = '';
+    exp.isDecimalA = false;
+    exp.isDecimalB = false;
+    exp.operator = '';
+    exp.lastWrite = '';
+    exp.total = '';
+
+    resultScreen.innerText = '0';
+    operationScreen.innerText = '0';
+}
+
+// Delete char
+const deleteChar = (exp) => {
+    switch (exp.lastWrite) {
+        case 'numberA':
+            exp.numberA = exp.numberA.slice(0, -1);
+            break;
+        case 'numberB':
+            exp.numberB = exp.numberB.slice(0, -1);
+            if(exp.numberB === '') exp.lastWrite = 'operator';
+            break;
+        case 'operator':
+            // Delete operator
+            exp.operator = '';
+            exp.lastWrite = 'numberA';
+            break;
+        default:
+            break;
+    }
+}
+
+// __________________________________________
+// __________________________________________
+
+
+
+
+
+/**
+ * Checks if an expression is computable (if number B is provided). Returns if not and compute if yes.
+ * @param {expression} expression 
+ * @returns 
+ */
+const computeEqual = (expression) => {
+    if(expression.numberB === '') return;
+    expression.total = operate(expression);
+    expression.lastWrite = '';
+    expression.numberA = '';
+    expression.numberB = '';
+    expression.isDecimalA = false;
+    expression.isDecimalB = false;
+    expression.operator = ''
+    console.log(expression);
+}
+
+
+
+/**
+ * Check if we're working on number A or B, if this number is already a decimal, 
+ * just return, else it's updating 'expression.lastWrite' and adds a decimal were needed"
+ * @param {expression} expression 
+ * @returns 
+ */
 const computeDecimal = (expression) => {
     // If exp.operator is empty, we work on number A
     if(expression.operator === '') {
@@ -110,13 +204,32 @@ const computeDecimal = (expression) => {
     return;
 }
 
-const computeOperator = (data, expression) => {
 
+
+
+
+/**
+ * Adds an operator to expression if there is none
+ * Compute whole expression if there also is an operator 
+ * and number B then adds total as number A and new operator 
+ * as operator
+ * @param {String} data 
+ * @param {expression} expression 
+ */
+const computeOperator = (data, expression) => {
+    
 
     expression.lastWrite = 'operator';
 }
 
 
+
+/**
+ * Router that checks if the data is an operator, a decimal point or an equal sign.
+ * Calls to the adequate function
+ * @param {String} data 
+ * @param {expression} expression 
+ */
 const computeSymbol = (data, expression) => {
     if (data === '.') {
         computeDecimal(expression);
@@ -130,7 +243,7 @@ const computeSymbol = (data, expression) => {
         computeOperator(data, expression);
     }
     else {
-        computeEqual(data, expression);
+        computeEqual(expression);
     }
 }
 
@@ -138,7 +251,12 @@ const computeSymbol = (data, expression) => {
 
 
 
-
+/**
+ * Check wich expression.number it's working on and update it with data
+ * @param {String} data 
+ * @param {expression} expression 
+ * @returns 
+ */
 const computeNumber = (data, expression) => {
     console.log('computeNumber working on number : ');
     // If operator !empty, working on number B
@@ -162,7 +280,11 @@ const computeNumber = (data, expression) => {
 
 
 
-// Evaluate if nb or symbol
+/**
+ * Evaluates if data is a number or a symbol, calls the appropriate function with it
+ * @param {String} data 
+ * @param {expression} expression 
+ */
 const evaluateData = (data, expression) => {
     console.log('evaluateData, calling :');
     if(isNaN(Number(data))) {
@@ -182,16 +304,17 @@ evaluateData('/', 'a');
 
 let expression = {
     'numberA' : '',
-    'isDecimalA' : false,
-    'numberB': '',
-    'isDecimalB': false,
-    'operator' : '',
+    'isDecimalA' : true,
+    'numberB': '12.5147',
+    'isDecimalB': true,
+    'operator' : '+',
     'total': '',
     'lastWrite': '',    // In order to delete a char
-    'complete': false,
 }
 
 
 // evaluateData('3', expression);
 
-computeDecimal(expression);
+// computeDecimal(expression);
+
+computeEqual(expression);
