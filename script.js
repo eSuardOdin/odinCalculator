@@ -23,7 +23,6 @@ let expression = {
     'operator' : '',
     'total': '',
     'lastWrite': '',    // In order to delete a char
-    'complete': false,
 }
 
 //reset
@@ -99,111 +98,182 @@ const deleteChar = (exp) => {
 
 
 
-function updateNumber(exp, val, nb) {
-    if (nb === "A") {
-        // If first value is a dot
-        if(val === "." && exp.numberA === '') exp.numberA = "0.";
-        // If the number starts with 0, can't add a second
-        else if (val === '0' && exp.numberA === '0') return;
-        // If already 12 char long
-        else if (exp.numberA.length === 12) return;
-        else if (exp.numberA === '0') exp.numberA = val;
-        else exp.numberA += val;
-        exp.isDecimalA = (val === ".") ? true : exp.isDecimalA;
-    } 
-    else {
-        // If first value is a dot
-        if(val === "." && exp.numberB === '') exp.numberB = "0.";
-        // If the number starts with 0, can't add a second
-        else if (val === '0' && exp.numberB === '0') return;
-        // If already 12 char long
-        else if (exp.numberB.length === 12) return;
-        else if (exp.numberB === '0') exp.numberB = val;
-        else exp.numberB += val;
-        exp.isDecimalB = (val === ".") ? true : exp.isDecimalB;
+/**
+ * Checks if an expression is computable (if number B is provided). Returns if not and compute if yes.
+ * @param {expression} expression 
+ * @returns 
+ */
+const computeEqual = (expression) => {
+    if(expression.numberB === '') return;
+    expression.total = operate(expression);
+    expression.lastWrite = '';
+    expression.numberA = '';
+    expression.numberB = '';
+    expression.isDecimalA = false;
+    expression.isDecimalB = false;
+    expression.operator = ''
+    resultScreen.innerText = expression.total;
+    console.log(expression);
+}
+
+
+
+/**
+ * Check if we're working on number A or B, if this number is already a decimal, 
+ * just return, else it's updating 'expression.lastWrite' and adds a decimal were needed"
+ * @param {expression} expression 
+ * @returns 
+ */
+const computeDecimal = (expression) => {
+    // If exp.operator is empty, we work on number A
+    if(expression.operator === '') {
+        if(expression.isDecimalA) {
+            console.log(expression);
+            return; // If already a decimal
+        }
+        expression.lastWrite = 'numberA';
+        expression.numberA += (expression.numberA === '') ? '0.' : '.';
+        expression.isDecimalA = true;
+        console.log(expression);
+        return;
     }
     
+    // If not, we work on number B
+    if(expression.isDecimalB) {
+        console.log(expression);
+        return; // If already a decimal
+    }
+    expression.lastWrite = 'numberB';
+    expression.numberB += (expression.numberB === '') ? '0.' : '.';
+    expression.isDecimalB = true;
+    console.log(expression);
+    return;
 }
 
 
-const computeOperator = (exp, operator) => {
-    if(exp.total !== '' && exp.numberA === '') {
-        exp.numberA = exp.total;
-        exp.total = '';
-        exp.operator = operator;
-    } else {
-        exp.operator = operator;
+
+
+
+/**
+ * Adds an operator to expression if there is none
+ * Compute whole expression if there also is an operator 
+ * and number B then adds total as number A and new operator 
+ * as operator
+ * @param {String} data 
+ * @param {expression} expression 
+ */
+const computeOperator = (data, expression) => {
+    console.log('Enters computeOperator with expression');
+    console.log(expression); 
+    console.log(`And data ${data}`);   
+    if(expression.numberA === '' && expression.operator === '') {
+        if(expression.total === '') return;
+        expression.numberA = expression.total;
+        expression.operator = data;
+        expression.isDecimalA = !(Number(expression.total) % 1 === 0); // Checks if total is decimal
+        resultScreen.innerText = expression.total;
+        expression.total = '';
     }
+    if(expression.operator !== '') {
+        if(expression.numberB === '' && expression.lastWrite === "operator") return; // || if last write is operator?
+        console.log('enters');
+        expression.total = operate(expression);
+        expression.numberA = expression.total;
+        expression.numberB = '';
+        expression.isDecimalB = false;
+        expression.operator = data;
+        expression.isDecimalA = !(Number(expression.total) % 1 === 0);
+        resultScreen.innerText = expression.total;
+        expression.total = ''
+    } else if (expression.numberA !== '' && expression.numberB === '') {
+        expression.operator = data;
+    }
+    
+    expression.lastWrite = 'operator';
+    console.log(expression);
 }
 
-const updateExpression = (val, exp) => {
-    console.log(`Value : ${val}`);
-    // Return if the input is an operator and no number A yet
-    if( val !== "." && isNaN(val) 
-        && val !== '+'
-        && val !== '-'
-        && val !== 'x'
-        && val !== '/'
-        && val !== '='        
-        ) return;
 
-    //If no operator, and val is a number we're working on number A
-    if(exp.operator === ''
-        && val !== '+'
-        && val !== '-'
-        && val !== 'x'
-        && val !== '/'
-        && val !== '='  ) {
-        console.log('Update nb A');
-        updateNumber(exp, val, "A");
-        // Last updated
-        exp.lastWrite = "numberA"
-    }
-    else if ( // If val == operator and number B is empty, we're just updating exp.operator
-            (val === '+' ||
-            val === '-' ||
-            val === '/' ||
-            val === 'x')
-            && exp.numberB === ''
-        ) {
-            console.log('Compute operator');
-            computeOperator(val);
-            exp.lastWrite = "operator"
-    } 
-    else if(exp.operator !== '') { // Working on number B
-        console.log('Update nb B');
-        updateNumber(exp, val, "B");
-        // Last updated
-        exp.lastWrite = "numberB"
-    }
 
-    if(val === "=" && exp.numberA !== '' && exp.numberB !== '') { // Triggering operation
-        exp.total = operate(exp);
-        exp.numberA = '';
-        exp.operator = '';
-        exp.numberB = '';
-    } 
+/**
+ * Router that checks if the data is an operator, a decimal point or an equal sign.
+ * Calls to the adequate function
+ * @param {String} data 
+ * @param {expression} expression 
+ */
+const computeSymbol = (data, expression) => {
+    if (data === '.') {
+        computeDecimal(expression);
+    }
     else if (
-        val === '+' ||
-        val === '-' ||
-        val === '/' ||
-        val === 'x'
-        && exp.numberA !== '' && exp.numberB !== ''
+            data === '/' ||
+            data === 'x' ||
+            data === '+' ||
+            data === '-'
     ) {
-        exp.total = operate(exp);
-        exp.numberA = exp.total;
-        exp.operator = val;
+        computeOperator(data, expression);
     }
-    console.log(exp);
+    else {
+        computeEqual(expression);
+    }
 }
+
+
+
+/**
+ * Check wich expression.number it's working on and update it with data
+ * @param {String} data 
+ * @param {expression} expression 
+ * @returns 
+ */
+const computeNumber = (data, expression) => {
+    console.log('computeNumber working on number : ');
+    // If operator !empty, working on number B
+    if(expression.operator !== '') {
+        console.log('B');
+        expression.numberB += data;
+        expression.lastWrite = 'numberB';
+        console.log(expression);
+        return;
+    }
+    console.log('A');
+    // If total not already empty, we erase it
+    if(expression.numberA === '' && expression.total !== '') {
+        console.log('Total erased');
+        expression.lastWrite = 'numberA';
+        expression.total = '';
+    }
+    expression.numberA += data;
+    console.log(expression);
+}
+
+
+/**
+ * Evaluates if data is a number or a symbol, calls the appropriate function with it
+ * @param {String} data 
+ * @param {expression} expression 
+ */
+const evaluateData = (data, expression) => {
+    console.log('evaluateData, calling :');
+    if(isNaN(Number(data))) {
+        console.log('computeSymbol')
+        computeSymbol(data, expression);
+    } else {
+        console.log('computeNumber')
+        computeNumber(data, expression);
+    }
+}
+
+
+
 
 /*
 ----- Events -----
 */
 buttons.forEach((el) => {
     el.addEventListener('click', () => {
-        updateExpression(el.getAttribute('value'), expression);
-        resultScreen.innerText = expression.total; 
+        evaluateData(el.getAttribute('value'), expression);
+        // resultScreen.innerText = expression.total; 
         operationScreen.innerText = expression.numberA + expression.operator + expression.numberB;
     });
 })
