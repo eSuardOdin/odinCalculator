@@ -39,6 +39,8 @@ const add      = (a, b) => round((a + b), 1000);
 const subtract = (a, b) => round((a - b), 1000);
 const multiply = (a, b) => round((a * b), 1000);
 const divide   = (a, b) => round((a / b), 1000);
+    
+
 
 // Switch an expression to return computed
 const operate = (exp) => {
@@ -54,6 +56,11 @@ const operate = (exp) => {
             res = multiply(Number(exp.numberA), Number(exp.numberB));
             break;
         case "/":
+            if(exp.numberB === '0') {
+                alert('It seems you tried to divide by zero, this is not allowed.');
+                clearExpression(exp);
+                return;
+            }
             res = divide(Number(exp.numberA), Number(exp.numberB));
             break;
         default:
