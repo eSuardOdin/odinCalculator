@@ -217,9 +217,28 @@ const computeDecimal = (expression) => {
  * @param {expression} expression 
  */
 const computeOperator = (data, expression) => {
-    
+    console.log('Enters computeOperator with expression');
+    console.log(expression);    
+    if(expression.numberA === '' && expression.operator === '') {
+        if(expression.total === '') return;
+        expression.numberA = expression.total;
+        expression.operator = data;
+        expression.isDecimalA = !(Number(expression.total) % 1 === 0); // Checks if total is decimal
+        expression.total = '';
+    }
+    if(expression.operator !== '') {
+        if(expression.numberB === '') return; // || if last write is operator?
+        expression.total = operate(expression);
+        expression.numberA = expression.total;
+        expression.numberB = '';
+        expression.isDecimalB = false;
+        expression.operator = data;
+        expression.isDecimalA = !(Number(expression.total) % 1 === 0);
+        expression.total = ''
+    }
 
     expression.lastWrite = 'operator';
+    console.log(expression);
 }
 
 
@@ -246,8 +265,6 @@ const computeSymbol = (data, expression) => {
         computeEqual(expression);
     }
 }
-
-
 
 
 
@@ -279,7 +296,6 @@ const computeNumber = (data, expression) => {
 }
 
 
-
 /**
  * Evaluates if data is a number or a symbol, calls the appropriate function with it
  * @param {String} data 
@@ -296,25 +312,18 @@ const evaluateData = (data, expression) => {
     }
 }
 
-/*
-evaluateData('8', 'a');
-evaluateData('/', 'a');
-*/
-
-
 let expression = {
-    'numberA' : '',
+    'numberA' : '1.5',
     'isDecimalA' : true,
-    'numberB': '12.5147',
+    'numberB': '1.3',
     'isDecimalB': true,
     'operator' : '+',
     'total': '',
-    'lastWrite': '',    // In order to delete a char
+    'lastWrite': 'numberB',    // In order to delete a char
 }
-
 
 // evaluateData('3', expression);
 
 // computeDecimal(expression);
 
-computeEqual(expression);
+computeOperator('+', expression);
