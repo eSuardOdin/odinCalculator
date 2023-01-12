@@ -22,6 +22,7 @@ body {
     justify-content: center;
     border: solid rgb(45, 45, 45) 5px;
     border-radius: 25px;
+    box-shadow: 8px 8px black;
 }
 .screen {
     background-color: rgb(29, 109, 29);
@@ -70,10 +71,12 @@ body {
     width: 20%;
     font-weight: 700;
     font-size: large;
+    box-shadow: 2px 2px black;
 }
 .duoBtn {
     height: 100%;
     width: 40%;
     font-weight: 700;
     font-size: large;
+    box-shadow: 2px 2px black;
 }
